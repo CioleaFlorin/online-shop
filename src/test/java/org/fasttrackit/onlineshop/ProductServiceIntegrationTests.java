@@ -1,6 +1,7 @@
 package org.fasttrackit.onlineshop;
 
 import org.fasttrackit.onlineshop.domain.Product;
+import org.fasttrackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttrackit.onlineshop.service.ProductService;
 import org.fasttrackit.onlineshop.transfer.SaveProductRequest;
 
@@ -23,9 +24,39 @@ public class ProductServiceIntegrationTests {
     @Autowired
     private ProductService productService;
 
-	@Test
-    public void testCreateProduct_whenValidRequest_thenAnswear(){
-	    SaveProductRequest request=new SaveProductRequest();
+
+    @Test(expected = TransactionSystemException.class)
+    public void testCreateProduct_whenInvalidRequest_theThrowException() {
+        SaveProductRequest request = new SaveProductRequest();
+        //leaving the request properties with default null values
+        //to validate the negative flow
+        productService.createProduct(request);
+
+    }
+
+    @Test
+    public void testGetProduct_whenExistingProduct_thenReturnProduct() {
+        Product createdProduct = createProduct();
+        Product product=productService.getProduct(createdProduct.getId());
+
+        assertThat(product, notNullValue());
+        assertThat(product.getId(), is(createdProduct.getId()));
+        assertThat(product.getId(), greaterThan(0L));
+        assertThat(product.getName(), is(createdProduct.getName()));
+        assertThat(product.getDescription(), is(createdProduct.getDescription()));
+        assertThat(product.getPrice(), is(createdProduct.getPrice()));
+        assertThat(product.getQuantity(), is(createdProduct.getQuantity()));
+
+
+    }
+
+    @Test
+    public void testCreateProduct_whenValidRequest_thenAnswear() {
+        createProduct();
+    }
+
+    private Product createProduct() {
+        SaveProductRequest request = new SaveProductRequest();
         request.setName("Banana");
         request.setPrice(5.0);
         request.setQuantity(100);
@@ -37,17 +68,17 @@ public class ProductServiceIntegrationTests {
         assertThat(createdProduct.getId(), greaterThan(0L));
         assertThat(createdProduct.getName(), is(request.getName()));
         assertThat(createdProduct.getDescription(), is(request.getDescription()));
-        assertThat(createdProduct.getPrice(), is(request.getPrice())) ;
+        assertThat(createdProduct.getPrice(), is(request.getPrice()));
         assertThat(createdProduct.getQuantity(), is(request.getQuantity()));
+        return createdProduct;
     }
 
-    @Test(expected = TransactionSystemException.class)
-    public void testCreateProduct_whenInvalidRequest_theThrowException() {
-	    SaveProductRequest request=new SaveProductRequest();
-	    //leaving the request properties with default null values
-        //to validate the negative flow
-	    productService.createProduct(request);
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetProduct_whenNonExistingProduct_thenThrowResourcesNotFoundException(){
+        productService.getProduct(9999999999L);
+
 
     }
-
 }
+
+
