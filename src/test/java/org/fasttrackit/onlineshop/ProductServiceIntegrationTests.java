@@ -26,7 +26,7 @@ public class ProductServiceIntegrationTests {
 
 
     @Test(expected = TransactionSystemException.class)
-    public void testCreateProduct_whenInvalidRequest_theThrowException() {
+    public void testCreateProduct_whenInvalidRequest_thenThrowException() {
         SaveProductRequest request = new SaveProductRequest();
         //leaving the request properties with default null values
         //to validate the negative flow
@@ -51,8 +51,44 @@ public class ProductServiceIntegrationTests {
     }
 
     @Test
-    public void testCreateProduct_whenValidRequest_thenAnswear() {
+    public void testCreateProduct_whenValidRequest_thenProductIsSaved() {
         createProduct();
+    }
+
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetProduct_whenNonExistingProduct_thenThrowResourcesNotFoundException(){
+        productService.getProduct(9999999999L);
+
+
+    }
+    @Test
+    public void testUpdateProduct_whenValidRequest_thenReturnUpdatedProduct() {
+        Product createdProduct = createProduct();
+
+        SaveProductRequest request=new SaveProductRequest();
+        request.setName(createdProduct.getName()+" updated");
+        request.setDescription(createdProduct.getDescription() + " updated");
+        request.setPrice(createdProduct.getPrice() + 10);
+        request.setQuantity(createdProduct.getQuantity() + 10);
+
+        Product updatedProduct = productService.updateProduct(createdProduct.getId(), request);
+
+        assertThat(updatedProduct,notNullValue());
+        assertThat(updatedProduct.getId(),is(createdProduct.getId()));
+        assertThat(updatedProduct.getName(),is(request.getName()));
+        assertThat(updatedProduct.getDescription(),is(request.getDescription()));
+        assertThat(updatedProduct.getPrice(),is(request.getPrice()));
+        assertThat(updatedProduct.getQuantity(),is(request.getQuantity()));
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testDeleteProduct_whenExistingProduct_thenProductIsDeleted(){
+        Product product = createProduct();
+
+        productService.deleteProduct(product.getId());
+
+        productService.getProduct(product.getId());
     }
 
     private Product createProduct() {
@@ -73,12 +109,6 @@ public class ProductServiceIntegrationTests {
         return createdProduct;
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void testGetProduct_whenNonExistingProduct_thenThrowResourcesNotFoundException(){
-        productService.getProduct(9999999999L);
-
-
-    }
 }
 
 
