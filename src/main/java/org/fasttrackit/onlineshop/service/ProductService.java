@@ -48,7 +48,7 @@ public class ProductService {
 
     }
 
-    public Page<Product> getProduct(GetProductsRequest request, Pageable pageable) {
+    public Page<Product> getProducts(GetProductsRequest request, Pageable pageable) {
         LOGGER.info("Retriving products: {}", request );
         if (request != null && request.getPartialName() != null && request.getMinQuantity() != null) {
             return productRepository.findByNameContainingAndQuantityGreaterThanEqual(
