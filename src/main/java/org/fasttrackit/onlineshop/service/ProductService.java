@@ -1,5 +1,6 @@
 package org.fasttrackit.onlineshop.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fasttrackit.onlineshop.domain.Product;
 import org.fasttrackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttrackit.onlineshop.persistance.ProductRepository;
@@ -13,31 +14,34 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class ProductService {
     public static final Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
 
     //IoC inversion of control
     private final ProductRepository productRepository;
+    private final ObjectMapper objectMapper;
 
     //Dependency injection
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ObjectMapper objectMapper) {
         this.productRepository = productRepository;
+        this.objectMapper = objectMapper;
     }
 
     public Product createProduct(SaveProductRequest request) {
         LOGGER.info("Creating product{}", request);
-        Product product = new Product();
-        product.setDescription(request.getDescription());
-        product.setName(request.getName());
-        product.setImageUrl(request.getImageUrl());
-        product.setPrice(request.getPrice());
-        product.setQuantity(request.getQuantity());
-        return productRepository.save(product);
+        Product product=objectMapper.convertValue(request, Product.class);
 
+           //Statments below would create the same object as the ObjectMapper did above
+        //Product product = new Product();
+        //product.setDescription(request.getDescription());
+        //product.setName(request.getName());
+        //product.setImageUrl(request.getImageUrl());
+        //product.setPrice(request.getPrice());
+        //product.setQuantity(request.getQuantity());
+        //return productRepository.save(product);
+//
     }
 
     public Product getProduct(long id) {
