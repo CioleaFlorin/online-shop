@@ -66,19 +66,19 @@ public class CartService {
 
         Set<ProductInCartResponse> productInCart= new HashSet<>();
 
-       // Iterator<Product> cartIterator =cart.getProducts().iterator();
+       Iterator<Product> cartIterator =cart.getProducts().iterator();
 
-        //while(cartIterator.hasNext()){
-        //    Product product=cartIterator.next();
-//
-        //    ProductInCartResponse productResponse=new ProductInCartResponse();
-        //    productResponse.setId((product.getId()));
-        //    productResponse.setName(product.getName());
-        //    productResponse.setPrice(product.getPrice());
-//
-        //    productInCart.add(productResponse);
-        //}
-        //response.setProducts(productInCart);
+        while(cartIterator.hasNext()){
+            Product product=cartIterator.next();
+
+            ProductInCartResponse productResponse=new ProductInCartResponse();
+            productResponse.setId((product.getId()));
+            productResponse.setName(product.getName());
+            productResponse.setPrice(product.getPrice());
+
+            productInCart.add(productResponse);
+        }
+        response.setProducts(productInCart);
         return response;
     }
 }
