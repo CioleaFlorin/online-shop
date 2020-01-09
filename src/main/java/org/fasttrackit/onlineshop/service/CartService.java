@@ -46,8 +46,8 @@ public class CartService {
             cart.setId(customer.getId());
             cart.setCustomer(customer);
         }
-            //Product product = productService.getProduct(request.getProductId());
-            //cart.addToCart(product);
+            Product product = productService.getProduct(request.getProductId());
+            cart.addToCart(product);
 
         cartRepository.save(cart);
         }
