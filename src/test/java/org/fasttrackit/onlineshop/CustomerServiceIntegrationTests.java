@@ -3,6 +3,7 @@ package org.fasttrackit.onlineshop;
 import org.fasttrackit.onlineshop.domain.Customer;
 import org.fasttrackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttrackit.onlineshop.service.CustomerService;
+import org.fasttrackit.onlineshop.steps.CustomerSteps;
 import org.fasttrackit.onlineshop.transfer.SaveCustomerRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,9 @@ public class CustomerServiceIntegrationTests {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private CustomerSteps customerSteps;
+
 
     @Test(expected = TransactionSystemException.class)
     public void testCreateCustomer_whenInvalidRequest_thenThrowException() {
@@ -35,7 +39,7 @@ public class CustomerServiceIntegrationTests {
 
     @Test
     public void testGetCustomer_whenExistingCustomer_thenReturnCustomer() {
-        Customer createdCustomer = createCustomer();
+        Customer createdCustomer = customerSteps.createCustomer();
         Customer customer=customerService.getCustomer(createdCustomer.getId());
 
         assertThat(customer, notNullValue());
@@ -50,7 +54,7 @@ public class CustomerServiceIntegrationTests {
 
     @Test
     public void testCreateCustomer_whenValidRequest_thenCustomerIsSaved() {
-        createCustomer();
+        customerSteps.createCustomer();
     }
 
 
@@ -62,7 +66,7 @@ public class CustomerServiceIntegrationTests {
     }
     @Test
     public void testUpdateCustomer_whenValidRequest_thenReturnUpdatedCustomer() {
-        Customer createdCustomer = createCustomer();
+        Customer createdCustomer = customerSteps.createCustomer();
 
         SaveCustomerRequest request=new SaveCustomerRequest();
         request.setFirstName(createdCustomer.getFirstName()+" updated");
@@ -80,28 +84,14 @@ public class CustomerServiceIntegrationTests {
 
     @Test(expected = ResourceNotFoundException.class)
     public void testDeleteCustomer_whenExistingCustomer_thenCustomerIsDeleted(){
-        Customer customer = createCustomer();
+        Customer customer = customerSteps.createCustomer();
 
         customerService.deleteCustomer(customer.getId());
 
         customerService.getCustomer(customer.getId());
     }
 
-    private Customer createCustomer() {
-        SaveCustomerRequest request = new SaveCustomerRequest();
-        request.setFirstName("Andrei "+ System.currentTimeMillis());
-        request.setLastName("Bot "+ System.currentTimeMillis());
 
-
-        Customer createdCustomer = customerService.createCustomer(request);
-        assertThat(createdCustomer, notNullValue());
-        assertThat(createdCustomer.getId(), notNullValue());
-        assertThat(createdCustomer.getId(), greaterThan(0L));
-        assertThat(createdCustomer.getFirstName(), is(request.getFirstName()));
-        assertThat(createdCustomer.getLastName(), is(request.getLastName()));
-
-        return createdCustomer;
-    }
 
 }
 
